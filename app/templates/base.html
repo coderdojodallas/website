@@ -1,5 +1,16 @@
 {% extends "bootstrap/base.html" %}
-{% block title %}Welcome to CoderDojoDallas!{% endblock %}
+{% if title %}
+  <title>{{ title  }} - CoderDojoDallas</title>
+{% else %}
+  <title>CoderDojoDallas</title>
+{% endif %}
+
+{% set navigation_bar = [
+  ('/', 'home', 'Home'),
+  ('/about', 'about', 'About'),
+  ('/contact', 'contact', 'Contact'),
+  ('/register', 'register', 'Register')
+] %}
 
 {% block navbar %}
 <nav class="navbar navbar-inverse navbar-static-top">
@@ -20,13 +31,14 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="social-media-collapse">
       <ul class="nav navbar-nav navbar-right">
-        <li class="active"><a href="#">Home<span class="sr-only">(current)</span></a></li>
-        <li><a href="#">About</a></li>
+        {% for href, id, caption in navigation_bar %}
+          <li{% if id == active_page %} class="active"{% endif %}><a href="{{ href|e }}">{{ caption|e  }}</a></li>
+        {% endfor %}
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Social Media <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#">Twitter</a></li>
-            <li><a href="#">Facebook</a></li>
+            <li><a href="https://twitter.com/coderdojodallas">Twitter</a></li>
+            <li><a href="https://www.facebook.com/CoderDojoDallas">Facebook</a></li>
             <li><a href="#">Instagram</a></li>
           </ul>
         </li>
