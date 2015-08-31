@@ -3,5 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# OS Files
+.DS_Store
+
 # Virtual Environment
 venv
