@@ -1,8 +1,40 @@
 {% extends "base.html" %}
 {% set active_page = "home" %}
 
+
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 <div class="container">
-  <h1>Welcome to CoderDojoDallas!</h1>
+  <div class="row">
+
+    <div class="col-md-12">
+      <h2>What do we do?</h2>
+      <p class="lead">
+        CoderDojo Dallas is a free, volunteer-led, non-profit focused on teaching young people to code. At CoderDojo Dallas, kids between 7 - 17 will learn how to create games, websites, apps and explore technology.
+      <p/>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <div class="col-md-6">
+      <h2>Where are we?</h2>
+      <div class="google-maps">
+        <iframe width="600" height="450" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?q=Tyler%20Technologies%2C%20Inc.%2C%20Tennyson%20Parkway%2C%20Plano%2C%20TX%2C%20United%20States&key=AIzaSyAcSKgyozgX71Q1-MPwVXqeSJWKnFdZAIA" allowfullscreen></iframe>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <h2>Join our mailing list!</h2>
+
+      <form action="" method="post" name="mailing_list">
+        {{ form.hidden_tag() }}
+        <p>First</p><br>
+        {{ form.first_name(size=80) }}<br>
+      </form>
+    </div>
+
+  </div>
+
 </div>
 {% endblock %}
