@@ -1,13 +1,13 @@
-"""create User table
+"""empty message
 
-Revision ID: 5374c571c70
+Revision ID: 101f1af0e32
 Revises: None
-Create Date: 2015-09-22 17:32:46.175774
+Create Date: 2015-09-24 21:26:11.307863
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '5374c571c70'
+revision = '101f1af0e32'
 down_revision = None
 
 from alembic import op
@@ -21,8 +21,16 @@ def upgrade():
     sa.Column('first', sa.String(length=64), nullable=False),
     sa.Column('last', sa.String(length=64), nullable=False),
     sa.Column('email', sa.String(length=254), nullable=False),
+    sa.Column('age_group_1', sa.Boolean(), nullable=False),
+    sa.Column('age_group_2', sa.Boolean(), nullable=False),
+    sa.Column('age_group_3', sa.Boolean(), nullable=False),
+    sa.Column('confirmed', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_user_age_group_1'), 'user', ['age_group_1'], unique=False)
+    op.create_index(op.f('ix_user_age_group_2'), 'user', ['age_group_2'], unique=False)
+    op.create_index(op.f('ix_user_age_group_3'), 'user', ['age_group_3'], unique=False)
+    op.create_index(op.f('ix_user_confirmed'), 'user', ['confirmed'], unique=False)
     op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
     op.create_index(op.f('ix_user_first'), 'user', ['first'], unique=False)
     op.create_index(op.f('ix_user_last'), 'user', ['last'], unique=False)
@@ -34,5 +42,9 @@ def downgrade():
     op.drop_index(op.f('ix_user_last'), table_name='user')
     op.drop_index(op.f('ix_user_first'), table_name='user')
     op.drop_index(op.f('ix_user_email'), table_name='user')
+    op.drop_index(op.f('ix_user_confirmed'), table_name='user')
+    op.drop_index(op.f('ix_user_age_group_3'), table_name='user')
+    op.drop_index(op.f('ix_user_age_group_2'), table_name='user')
+    op.drop_index(op.f('ix_user_age_group_1'), table_name='user')
     op.drop_table('user')
     ### end Alembic commands ###

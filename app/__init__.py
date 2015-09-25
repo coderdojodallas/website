@@ -1,11 +1,15 @@
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
+from flask.ext.mail import Mail
+from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
-from flask.ext.migrate import Migrate, MigrateCommand
 
 # Main Flask setup
 app = Flask(__name__)
+
+# Email setup
+mail = Mail(app)
 
 # Bootstrap setup
 Bootstrap(app)
