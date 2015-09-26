@@ -15,27 +15,26 @@ def home():
             flash('You must select at least one age group.', 'alert-danger')
         else:
             try:
-                user = User(
-                    first=form.first_name.data,
-                    last=form.last_name.data,
-                    email=form.email.data,
-                    age_group_1=form.age_group_1.data,
-                    age_group_2=form.age_group_2.data,
-                    age_group_3=form.age_group_3.data,
-                    confirmed=False
-                )
-                db.session.add(user)
+                user = User.query.filter_by(email=form.email.data).first()
+                if user:
+                    confirm_text = _get_confirm_text(user)
+                    flash("The email address '{0}' has already been "
+                          "submitted{1}".format(user.email, confirm_text), 'alert-info')
+                else:
+                    user = form.create_user()
+                    db.session.add(user)
 
-                token = generate_confirmation_token(user.email)
-                confirmation_url = url_for('confirm_email', token=token, _external=True)
-                send_confirmation_email(mail, user.email, confirmation_url)
+                    token = generate_confirmation_token(user.email)
+                    confirmation_url = url_for('confirm_email', token=token,
+                                               _external=True)
+                    send_confirmation_email(mail, user.email, confirmation_url)
 
-                db.session.commit()
-                flash('Confirmation email sent to {0}.'.format(form.email.data),
-                      'alert-success')
+                    db.session.commit()
+                    flash('Confirmation email sent to {0}.'.format(form.email.data),
+                          'alert-success')
             except Exception as e:
-                flash(e, 'alert-danger')
                 db.session.rollback()
+                raise e
 
     return render_template('home.html', title='Home', form=form)
 
@@ -57,20 +56,32 @@ def register():
 
 @app.route('/confirm_email/<token>')
 def confirm_email(token):
+    email = ''
     try:
         email = confirm_token(token)
     except:
         flash('The confimation link is invalid or has expired.'
               'Please fill out the Mailing List form again.', 'alert-danger')
 
-    user = db.User.query.filter_by(email=email).first_or_404()
+    user = User.query.filter_by(email=email).first_or_404()
     if user.confirmed:
-        flash("The email address '{0}' has already been confirmed." 'alert-info')
+        flash("The email address '{0}' has already been "
+              "confirmed.".format(email), 'alert-info')
     else:
         user.confirmed = True
         db.session.add(user)
         db.session.commit()
         flash("The email address '{0}' has successfully been added to "
               "our mailing list. Thank you for your interest in "
-              "CoderDojo Dallas!", 'alert-success')
+              "CoderDojo Dallas!".format(email), 'alert-success')
     return redirect(url_for('home'))
+
+
+# Helper Methods
+def _get_confirm_text(user):
+    if user.confirmed:
+        return (' and confirmed. You will receive '
+                'future CoderDojo Dallas emails.')
+    else:
+        return (', but not confirmed. Check your inbox '
+                'for an email with confirmation steps.')

@@ -9,7 +9,7 @@ def generate_confirmation_token(email):
 
 
 def confirm_token(token):
-    serializer = URLSafeTimedSerializer(app.config['SECRET-KEY'])
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
         email = serializer.loads(
             token,
@@ -23,7 +23,7 @@ def confirm_token(token):
 
 def send_confirmation_email(mail, recipient, url):
     msg = Message(
-        sender=('CoderDojo Dallas', "info@coderdojodallas.com"),
+        sender=('CoderDojo Dallas', 'coderdojodallas@gmail.com'),
         recipients=[recipient],
         subject='Please confirm your email subscription for CoderDojo Dallas',
         html='<a href="{0}">Click here to confirm your email subscription to CoderDojo Dallas.</a>'.format(url)

@@ -1,4 +1,5 @@
 from flask.ext.wtf import Form
+from .models import User
 from wtforms import StringField, BooleanField, validators
 
 
@@ -15,4 +16,15 @@ class MailingListForm(Form):
             self.age_group_1.data or
             self.age_group_2.data or
             self.age_group_3.data
+        )
+
+    def create_user(self):
+        return User(
+            first=self.first_name.data,
+            last=self.last_name.data,
+            email=self.email.data,
+            age_group_1=self.age_group_1.data,
+            age_group_2=self.age_group_2.data,
+            age_group_3=self.age_group_3.data,
+            confirmed=False
         )

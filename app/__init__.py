@@ -8,14 +8,14 @@ from flask.ext.script import Manager
 # Main Flask setup
 app = Flask(__name__)
 
+# Config setup
+app.config.from_object('config')
+
 # Email setup
 mail = Mail(app)
 
 # Bootstrap setup
 Bootstrap(app)
-
-# Config setup
-app.config.from_object('config')
 
 # Database and Migrate setup
 db = SQLAlchemy(app)
