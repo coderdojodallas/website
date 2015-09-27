@@ -1,9 +1,12 @@
 {% extends "bootstrap/base.html" %}
-{% if title %}
-  <title>{{ title  }} - CoderDojo Dallas</title>
-{% else %}
-  <title>CoderDojo Dallas</title>
-{% endif %}
+
+{% block title %}
+  {% if title %}
+    {{ title  }} - CoderDojo Dallas
+  {% else %}
+    CoderDojo Dallas
+  {% endif %}
+{% endblock %}
 
 {% set navigation_bar = [
   ('/', 'home', 'Home'),
