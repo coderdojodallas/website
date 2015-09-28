@@ -17,7 +17,7 @@ Getting Started
    (For info on what this call is doing, see the [Python 3 virtual environment documentation](https://docs.python.org/3/library/venv.html))
 4. Activate your virtual environment with `source venv/bin/activate` on Mac/Linux or `call venv\Scripts\activate` on Windows
 5. Run `pip install -r requirements.txt` to install the packages used for the website
-6. Make the file executable with `chmod a+x run.py` (Skip this test if you're on Windows)
+6. Make the file executable with `chmod a+x run.py` (Skip this step if you're on Windows)
 7. Execute the file with `./run.py` on Mac/Linux or `python run.py` on Windows
 8. Open your web browser and type `localhost:5000` in the address bar
 9. Look at the website in awe
