@@ -28,3 +28,11 @@ class MailingListForm(Form):
             age_group_3=self.age_group_3.data,
             confirmed=False
         )
+
+    def fill_fields_with_user(self, user):
+        self.first_name.data = user.first
+        self.last_name.data = user.last
+        self.email.data = user.email
+        self.age_group_1.data = user.age_group_1
+        self.age_group_2.data = user.age_group_2
+        self.age_group_3.data = user.age_group_3

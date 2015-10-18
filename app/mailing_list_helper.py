@@ -3,28 +3,28 @@ from flask.ext.mail import Message
 from itsdangerous import URLSafeTimedSerializer
 
 
-def generate_confirmation_token(email):
-    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-    return serializer.dumps(email, salt=app.config['EMAIL_CONFIRMATION_SALT'])
-
-
-def confirm_token(token):
+def confirm_token(token, salt, expiration=0):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
         email = serializer.loads(
             token,
-            salt=app.config['EMAIL_CONFIRMATION_SALT'],
-            max_age=app.config['EMAIL_CONFIRMATION_EXPIRATION']
+            salt=salt,
+            max_age=expiration
         )
     except:
         return False
     return email
 
 
-def send_confirmation_email(mail, recipient, url):
+def generate_token(email, salt):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    return serializer.dumps(email, salt=salt)
+
+
+def send_confirmation_email(mail, user, url):
     msg = Message(
         sender=('CoderDojo Dallas', 'coderdojodallas@gmail.com'),
-        recipients=[recipient],
+        recipients=[user.email],
         subject='Please confirm your email subscription for CoderDojo Dallas',
         html='<a href="{0}">Click here to confirm your email subscription to CoderDojo Dallas.</a>'.format(url)
     )

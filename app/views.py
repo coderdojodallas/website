@@ -1,7 +1,5 @@
-from app import app, db, mail
+from app import app, db, mail, mailing_list_helper as mlh
 from flask import flash, redirect, render_template, url_for
-from .confirmation_email import (confirm_token, generate_confirmation_token,
-                                 send_confirmation_email)
 from .forms import MailingListForm
 from .models import User
 
@@ -24,10 +22,13 @@ def home():
                     user = form.create_user()
                     db.session.add(user)
 
-                    token = generate_confirmation_token(user.email)
+                    token = mlh.generate_token(
+                        user.email,
+                        app.config['EMAIL_CONFIRMATION_SALT']
+                    )
                     confirmation_url = url_for('confirm_email', token=token,
                                                _external=True)
-                    send_confirmation_email(mail, user.email, confirmation_url)
+                    mlh.send_confirmation_email(mail, user, confirmation_url)
 
                     db.session.commit()
                     flash('Confirmation email sent to {0}.'.format(form.email.data),
@@ -58,12 +59,17 @@ def register():
 def confirm_email(token):
     email = ''
     try:
-        email = confirm_token(token)
+        email = mlh.confirm_token(
+            token,
+            salt=app.config['EMAIL_CONFIRMATION_SALT'],
+            expiration=app.config['EMAIL_CONFIRMATION_EXPIRATION']
+        )
     except:
-        flash('The confimation link is invalid or has expired.'
+        flash('The confimation link is invalid or has expired. '
               'Please fill out the Mailing List form again.', 'alert-danger')
+        return redirect(url_for('home'))
 
-    user = User.query.filter_by(email=email).first_or_404()
+    user = User.query.filter_by(email=email).first()
     if user.confirmed:
         flash("The email address '{0}' has already been "
               "confirmed.".format(email), 'alert-info')
@@ -75,6 +81,37 @@ def confirm_email(token):
               "our mailing list. Thank you for your interest in "
               "CoderDojo Dallas!".format(email), 'alert-success')
     return redirect(url_for('home'))
+
+
+@app.route('/email_preferences/<token>')
+def email_preferences(token):
+    email = ''
+    try:
+        email = mlh.confirm_token(
+            token,
+            salt=app.config['EMAIL_PREFERENCES_SALT'],
+        )
+    except:
+        flash('Your email preferences could not be loaded. Please contact '
+              'help@coderdojodallas.com so we can assist in updating your '
+              'mailing list preferences.')
+    user = User.query.filter_by(email=email).first_or_404()
+    form = MailingListForm()
+    form.fill_fields_with_user(user)
+    return render_template('email_preferences.html', title='Email Preferences')
+
+
+@app.route('/email_preferences')
+def email_preferences_test():
+    email = 'austincrft@gmail.com'
+    user = User.query.filter_by(email=email).first_or_404()
+    form = MailingListForm()
+    form.fill_fields_with_user(user)
+    return render_template(
+        'email_preferences.html',
+        title='Email Preferences',
+        form=form
+    )
 
 
 # Helper Methods
