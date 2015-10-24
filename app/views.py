@@ -22,13 +22,7 @@ def home():
                     user = form.create_user()
                     db.session.add(user)
 
-                    token = mlh.generate_token(
-                        user.email,
-                        app.config['EMAIL_CONFIRMATION_SALT']
-                    )
-                    confirmation_url = url_for('confirm_email', token=token,
-                                               _external=True)
-                    mlh.send_confirmation_email(mail, user, confirmation_url)
+                    _send_confirmation_email(user)
 
                     db.session.commit()
                     flash('Confirmation email sent to {0}.'.format(form.email.data),
@@ -57,14 +51,12 @@ def register():
 
 @app.route('/confirm_email/<token>')
 def confirm_email(token):
-    email = ''
-    try:
-        email = mlh.confirm_token(
-            token,
-            salt=app.config['EMAIL_CONFIRMATION_SALT'],
-            expiration=app.config['EMAIL_CONFIRMATION_EXPIRATION']
-        )
-    except:
+    email = mlh.confirm_token(
+        token,
+        salt=app.config['EMAIL_CONFIRMATION_SALT'],
+        expiration=app.config['EMAIL_CONFIRMATION_EXPIRATION']
+    )
+    if not email:
         flash('The confimation link is invalid or has expired. '
               'Please fill out the Mailing List form again.', 'alert-danger')
         return redirect(url_for('home'))
@@ -83,8 +75,8 @@ def confirm_email(token):
     return redirect(url_for('home'))
 
 
-@app.route('/email_preferences/<token>')
-def email_preferences(token):
+@app.route('/mailing_list_preferences/<token>', methods=['GET', 'POST'])
+def mailing_list_preferences(token):
     email = ''
     try:
         email = mlh.confirm_token(
@@ -92,29 +84,56 @@ def email_preferences(token):
             salt=app.config['EMAIL_PREFERENCES_SALT'],
         )
     except:
-        flash('Your email preferences could not be loaded. Please contact '
-              'help@coderdojodallas.com so we can assist in updating your '
-              'mailing list preferences.')
+        flash('The mailing list preferences for your email could not be loaded. '
+              'Please contact help@coderdojodallas.com so we can assist in '
+              'updating your mailing list preferences.')
+        return redirect(url_for('home'))
+
     user = User.query.filter_by(email=email).first_or_404()
     form = MailingListForm()
     form.fill_fields_with_user(user)
-    return render_template('email_preferences.html', title='Email Preferences')
+    return render_template('mailing_list_preferences.html', title='Mailing List Preferences')
 
 
-@app.route('/email_preferences')
-def email_preferences_test():
+@app.route('/mailing_list_preferences/test', methods=['GET', 'POST'])
+def mailing_list_preferences_test():
+    """
+    NOTE: This method exists only for easy testing and development of the
+    mailing list preferences feature. This should be moved into the
+    'mailing_list_preferences' method when the feature is more complete.
+
+    TODO: Unsubscribe logic
+    """
     email = 'austincrft@gmail.com'
     user = User.query.filter_by(email=email).first_or_404()
     form = MailingListForm()
-    form.fill_fields_with_user(user)
+
+    # Don't fill fields on form submit
+    if not form.validate_on_submit():
+        form.fill_fields_with_user(user)
+    else:
+        # Edit user with form data, send email confirmation if necessary
+        if not form.data_matches_user(user):
+            form.update_user(user)
+            if form.email.data != email:
+                _send_confirmation_email(user)
+                user.confirmed = False
+                flash('Confirmation email sent to {0}.'.format(user.email),
+                      'alert-success')
+
+            try:
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                raise e
+
     return render_template(
-        'email_preferences.html',
-        title='Email Preferences',
+        'mailing_list_preferences.html',
+        title='Mailing List Preferences',
         form=form
     )
 
 
-# Helper Methods
 def _get_confirm_text(user):
     if user.confirmed:
         return (' and confirmed. You will receive '
@@ -122,3 +141,13 @@ def _get_confirm_text(user):
     else:
         return (', but not confirmed. Check your inbox '
                 'for an email with confirmation steps.')
+
+
+def _send_confirmation_email(user):
+    token = mlh.generate_token(
+        user.email,
+        app.config['EMAIL_CONFIRMATION_SALT']
+    )
+    confirmation_url = url_for('confirm_email', token=token,
+                               _external=True)
+    mlh.send_confirmation_email(mail, user, confirmation_url)
