@@ -77,34 +77,16 @@ def confirm_email(token):
 
 @app.route('/mailing_list_preferences/<token>', methods=['GET', 'POST'])
 def mailing_list_preferences(token):
-    email = ''
-    try:
-        email = mlh.confirm_token(
-            token,
-            salt=app.config['EMAIL_PREFERENCES_SALT'],
-        )
-    except:
+    email = mlh.confirm_token(
+        token,
+        salt=app.config['MAILING_LIST_PREFERENCES_SALT'],
+    )
+    if not email:
         flash('The mailing list preferences for your email could not be loaded. '
               'Please contact help@coderdojodallas.com so we can assist in '
-              'updating your mailing list preferences.')
+              'updating your mailing list preferences.', 'alert-danger')
         return redirect(url_for('home'))
 
-    user = User.query.filter_by(email=email).first_or_404()
-    form = MailingListForm()
-    form.fill_fields_with_user(user)
-    return render_template('mailing_list_preferences.html', title='Mailing List Preferences')
-
-
-@app.route('/mailing_list_preferences/test', methods=['GET', 'POST'])
-def mailing_list_preferences_test():
-    """
-    NOTE: This method exists only for easy testing and development of the
-    mailing list preferences feature. This should be moved into the
-    'mailing_list_preferences' method when the feature is more complete.
-
-    TODO: Unsubscribe logic
-    """
-    email = 'austincrft@gmail.com'
     user = User.query.filter_by(email=email).first_or_404()
     form = MailingListForm()
 
@@ -123,6 +105,7 @@ def mailing_list_preferences_test():
 
             try:
                 db.session.commit()
+                flash('Your preferences have been successfully updated.', 'alert-success')
             except Exception as e:
                 db.session.rollback()
                 raise e
@@ -130,8 +113,33 @@ def mailing_list_preferences_test():
     return render_template(
         'mailing_list_preferences.html',
         title='Mailing List Preferences',
-        form=form
+        form=form,
+        token=token
     )
+
+
+@app.route('/unsubscribe/<token>', methods=['POST'])
+def unsubscribe(token):
+    email = mlh.confirm_token(
+        token,
+        salt=app.config['MAILING_LIST_PREFERENCES_SALT'],
+    )
+    if not email:
+        flash('There was an error unsubscribing you. Please contact '
+              'help@coderdojodallas.com so we can assist you in unsubscribing',
+              'alert-danger')
+        return redirect(url_for('home'))
+
+    user = User.query.filter_by(email=email).first_or_404()
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        flash('You have been successfully unsubscribed from the mailing list.',
+              'alert-success')
+        return redirect(url_for('home'))
+    except Exception as e:
+        db.session.rollback()
+        raise e
 
 
 def _get_confirm_text(user):

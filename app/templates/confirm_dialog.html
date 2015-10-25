@@ -1,4 +1,4 @@
-<form action="" method="post" name="confirm_unsubscribe">
+<form action="{{ url_for('unsubscribe', token=token) }}" method="post" name="confirm_unsubscribe">
   <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -14,7 +14,7 @@
 
         <div class="modal-footer">
           <button class="btn btn-default" data-dismiss="modal">Cancel</button>
-          <a class="btn btn-danger btn-ok" type="submit">Unsubscribe</a>
+          <button class="btn btn-danger btn-ok" type="submit">Unsubscribe</a>
         </div>
       </div>
     </div>

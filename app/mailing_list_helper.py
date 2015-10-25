@@ -17,7 +17,7 @@ def generate_token(email, salt):
     return serializer.dumps(email, salt=salt)
 
 
-def confirm_token(token, salt, expiration=0):
+def confirm_token(token, salt, expiration=None):
     """ Confirms token. Returns email address on success, or an empty string on failure.
 
     :param token: the token to be confirmed
