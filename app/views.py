@@ -1,5 +1,4 @@
 from app import app, db, mail, mailing_list_helper as mlh, messages
-from enum import Enum
 from flask import flash, redirect, render_template, url_for
 from .forms import MailingListForm
 from .models import User
