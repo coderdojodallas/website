@@ -1,7 +1,14 @@
-from app import app, db, mail, mailing_list_helper as mlh
+from app import app, db, mail, mailing_list_helper as mlh, messages
+from enum import Enum
 from flask import flash, redirect, render_template, url_for
 from .forms import MailingListForm
 from .models import User
+
+
+class alert(Enum):
+    info = 'alert-info'
+    danger = 'alert-danger'
+    success = 'alert-success'
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -10,14 +17,22 @@ def home():
 
     if form.validate_on_submit():
         if not form.age_group_is_chosen():
-            flash('You must select at least one age group.', 'alert-danger')
+            flash(messages.age_group_validation(), alert.danger)
         else:
             try:
-                user = User.query.filter_by(email=form.email.data).first()
+                email = form.email.data
+                user = User.query.filter_by(email=email).first()
                 if user:
-                    confirm_text = _get_confirm_text(user)
-                    flash("The email address '{0}' has already been "
-                          "submitted{1}".format(user.email, confirm_text), 'alert-info')
+                    if user.confirmed:
+                        flash(
+                            messages.email_address_submitted_and_confirmed(email),
+                            alert.info
+                        )
+                    else:
+                        flash(
+                            messages.email_address_submitted_not_confirmed(email),
+                            alert.info
+                        )
                 else:
                     user = form.create_user()
                     db.session.add(user)
@@ -25,8 +40,10 @@ def home():
                     _send_confirmation_email(user)
 
                     db.session.commit()
-                    flash('Confirmation email sent to {0}.'.format(form.email.data),
-                          'alert-success')
+                    flash(
+                        messages.confirmation_email_sent(email),
+                        alert.success
+                    )
             except Exception as e:
                 db.session.rollback()
                 raise e
@@ -57,21 +74,17 @@ def confirm_email(token):
         expiration=app.config['EMAIL_CONFIRMATION_EXPIRATION']
     )
     if not email:
-        flash('The confimation link is invalid or has expired. '
-              'Please fill out the Mailing List form again.', 'alert-danger')
+        flash(messages.confirmation_link_invalid(), alert.danger)
         return redirect(url_for('home'))
 
     user = User.query.filter_by(email=email).first()
     if user.confirmed:
-        flash("The email address '{0}' has already been "
-              "confirmed.".format(email), 'alert-info')
+        flash(messages.confirmation_link_invalid(), alert.info)
     else:
         user.confirmed = True
         db.session.add(user)
         db.session.commit()
-        flash("The email address '{0}' has successfully been added to "
-              "our mailing list. Thank you for your interest in "
-              "CoderDojo Dallas!".format(email), 'alert-success')
+        flash(messages.confirmation_link_confirmed(), alert.success)
     return redirect(url_for('home'))
 
 
@@ -82,9 +95,7 @@ def mailing_list_preferences(token):
         salt=app.config['MAILING_LIST_PREFERENCES_SALT'],
     )
     if not email:
-        flash('The mailing list preferences for your email could not be loaded. '
-              'Please contact help@coderdojodallas.com so we can assist in '
-              'updating your mailing list preferences.', 'alert-danger')
+        flash(messages.mailing_list_preferences_error(), alert.danger)
         return redirect(url_for('home'))
 
     user = User.query.filter_by(email=email).first_or_404()
@@ -100,12 +111,14 @@ def mailing_list_preferences(token):
             if form.email.data != email:
                 _send_confirmation_email(user)
                 user.confirmed = False
-                flash('Confirmation email sent to {0}.'.format(user.email),
-                      'alert-success')
+                flash(
+                    messages.confirmation_email_sent(email),
+                    alert.success
+                )
 
             try:
                 db.session.commit()
-                flash('Your preferences have been successfully updated.', 'alert-success')
+                flash(messages.mailing_list_preferencess_success(), alert.success)
             except Exception as e:
                 db.session.rollback()
                 raise e
@@ -125,30 +138,18 @@ def unsubscribe(token):
         salt=app.config['MAILING_LIST_PREFERENCES_SALT'],
     )
     if not email:
-        flash('There was an error unsubscribing you. Please contact '
-              'help@coderdojodallas.com so we can assist you in unsubscribing',
-              'alert-danger')
+        flash(messages.mailing_list_unsubscribe_error(), alert.danger)
         return redirect(url_for('home'))
 
     user = User.query.filter_by(email=email).first_or_404()
     try:
         db.session.delete(user)
         db.session.commit()
-        flash('You have been successfully unsubscribed from the mailing list.',
-              'alert-success')
+        flash(messages.mailing_list_unsubscribe_success(), alert.success)
         return redirect(url_for('home'))
     except Exception as e:
         db.session.rollback()
         raise e
-
-
-def _get_confirm_text(user):
-    if user.confirmed:
-        return (' and confirmed. You will receive '
-                'future CoderDojo Dallas emails.')
-    else:
-        return (', but not confirmed. Check your inbox '
-                'for an email with confirmation steps.')
 
 
 def _send_confirmation_email(user):
