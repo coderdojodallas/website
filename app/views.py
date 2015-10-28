@@ -87,7 +87,6 @@ def mailing_list_preferences(token):
         token,
         salt=app.config['MAILING_LIST_PREFERENCES_SALT'],
     )
-    print(email)
     user = User.query.filter_by(email=email).first()
     if not user:
         flash(messages.mailing_list_preferences_error(), 'alert-danger')
