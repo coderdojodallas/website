@@ -5,19 +5,13 @@ from .forms import MailingListForm
 from .models import User
 
 
-class alert(Enum):
-    info = 'alert-info'
-    danger = 'alert-danger'
-    success = 'alert-success'
-
-
 @app.route('/', methods=['GET', 'POST'])
 def home():
     form = MailingListForm()
 
     if form.validate_on_submit():
         if not form.age_group_is_chosen():
-            flash(messages.age_group_validation(), alert.danger)
+            flash(messages.age_group_validation(), 'alert-danger')
         else:
             try:
                 email = form.email.data
@@ -26,12 +20,12 @@ def home():
                     if user.confirmed:
                         flash(
                             messages.email_address_submitted_and_confirmed(email),
-                            alert.info
+                            'alert-info'
                         )
                     else:
                         flash(
                             messages.email_address_submitted_not_confirmed(email),
-                            alert.info
+                            'alert-info'
                         )
                 else:
                     user = form.create_user()
@@ -42,7 +36,7 @@ def home():
                     db.session.commit()
                     flash(
                         messages.confirmation_email_sent(email),
-                        alert.success
+                        'alert-success'
                     )
             except Exception as e:
                 db.session.rollback()
@@ -74,17 +68,17 @@ def confirm_email(token):
         expiration=app.config['EMAIL_CONFIRMATION_EXPIRATION']
     )
     if not email:
-        flash(messages.confirmation_link_invalid(), alert.danger)
+        flash(messages.confirmation_link_invalid(), 'alert-danger')
         return redirect(url_for('home'))
 
     user = User.query.filter_by(email=email).first()
     if user.confirmed:
-        flash(messages.confirmation_link_invalid(), alert.info)
+        flash(messages.confirmation_link_already_confirmed(email), 'alert-info')
     else:
         user.confirmed = True
         db.session.add(user)
         db.session.commit()
-        flash(messages.confirmation_link_confirmed(), alert.success)
+        flash(messages.confirmation_link_confirmed(email), 'alert-success')
     return redirect(url_for('home'))
 
 
@@ -94,11 +88,12 @@ def mailing_list_preferences(token):
         token,
         salt=app.config['MAILING_LIST_PREFERENCES_SALT'],
     )
-    if not email:
-        flash(messages.mailing_list_preferences_error(), alert.danger)
+    print(email)
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash(messages.mailing_list_preferences_error(), 'alert-danger')
         return redirect(url_for('home'))
 
-    user = User.query.filter_by(email=email).first_or_404()
     form = MailingListForm()
 
     # Don't fill fields on form submit
@@ -112,13 +107,13 @@ def mailing_list_preferences(token):
                 _send_confirmation_email(user)
                 user.confirmed = False
                 flash(
-                    messages.confirmation_email_sent(email),
-                    alert.success
+                    messages.mailing_list_preferences_confirmation_email(form.email.data),
+                    'alert-success'
                 )
 
             try:
                 db.session.commit()
-                flash(messages.mailing_list_preferencess_success(), alert.success)
+                flash(messages.mailing_list_preferences_success(), 'alert-success')
             except Exception as e:
                 db.session.rollback()
                 raise e
@@ -138,14 +133,14 @@ def unsubscribe(token):
         salt=app.config['MAILING_LIST_PREFERENCES_SALT'],
     )
     if not email:
-        flash(messages.mailing_list_unsubscribe_error(), alert.danger)
+        flash(messages.mailing_list_unsubscribe_error(), 'alert-danger')
         return redirect(url_for('home'))
 
     user = User.query.filter_by(email=email).first_or_404()
     try:
         db.session.delete(user)
         db.session.commit()
-        flash(messages.mailing_list_unsubscribe_success(), alert.success)
+        flash(messages.mailing_list_unsubscribe_success(), 'alert-success')
         return redirect(url_for('home'))
     except Exception as e:
         db.session.rollback()
