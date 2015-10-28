@@ -17,7 +17,7 @@ def home():
 
     if form.validate_on_submit():
         if not form.age_group_is_chosen():
-            flash(messages.AGE_GROUP_VALIDATION, alert.danger)
+            flash(messages.age_group_validation(), alert.danger)
         else:
             try:
                 email = form.email.data
@@ -25,12 +25,12 @@ def home():
                 if user:
                     if user.confirmed:
                         flash(
-                            messages.EMAIL_ADDRESS_SUBMITTED_AND_CONFIRMED.format(email),
+                            messages.email_address_submitted_and_confirmed(email),
                             alert.info
                         )
                     else:
                         flash(
-                            messages.EMAIL_ADDRESS_SUBMITTED_NOT_CONFIRMED.format(email),
+                            messages.email_address_submitted_not_confirmed(email),
                             alert.info
                         )
                 else:
@@ -41,7 +41,7 @@ def home():
 
                     db.session.commit()
                     flash(
-                        messages.CONFIRMATIONCONFIRMATION_EMAIL_SENT.format(email),
+                        messages.confirmation_email_sent(email),
                         alert.success
                     )
             except Exception as e:
@@ -74,17 +74,17 @@ def confirm_email(token):
         expiration=app.config['EMAIL_CONFIRMATION_EXPIRATION']
     )
     if not email:
-        flash(messages.CONFIRMATION_LINK_INVALID, alert.danger)
+        flash(messages.confirmation_link_invalid(), alert.danger)
         return redirect(url_for('home'))
 
     user = User.query.filter_by(email=email).first()
     if user.confirmed:
-        flash(messages.CONFIRMATION_LINK_INVALID.format(email), alert.info)
+        flash(messages.confirmation_link_invalid(), alert.info)
     else:
         user.confirmed = True
         db.session.add(user)
         db.session.commit()
-        flash(messages.CONFIRMATION_LINK_CONFIRMED.format(email), alert.success)
+        flash(messages.confirmation_link_confirmed(), alert.success)
     return redirect(url_for('home'))
 
 
@@ -95,7 +95,7 @@ def mailing_list_preferences(token):
         salt=app.config['MAILING_LIST_PREFERENCES_SALT'],
     )
     if not email:
-        flash(messages.MAILING_LIST_PREFERENCES_ERROR, alert.danger)
+        flash(messages.mailing_list_preferences_error(), alert.danger)
         return redirect(url_for('home'))
 
     user = User.query.filter_by(email=email).first_or_404()
@@ -112,13 +112,13 @@ def mailing_list_preferences(token):
                 _send_confirmation_email(user)
                 user.confirmed = False
                 flash(
-                    messages.CONFIRMATION_EMAIL_SENT.format(user.email),
+                    messages.confirmation_email_sent(email),
                     alert.success
                 )
 
             try:
                 db.session.commit()
-                flash(messages.MAILING_LIST_PREFERENCES_SUCCESS, alert.success)
+                flash(messages.mailing_list_preferencess_success(), alert.success)
             except Exception as e:
                 db.session.rollback()
                 raise e
@@ -138,14 +138,14 @@ def unsubscribe(token):
         salt=app.config['MAILING_LIST_PREFERENCES_SALT'],
     )
     if not email:
-        flash(messages.MAILING_LIST_UNSUBSCRIBE_ERROR, alert.danger)
+        flash(messages.mailing_list_unsubscribe_error(), alert.danger)
         return redirect(url_for('home'))
 
     user = User.query.filter_by(email=email).first_or_404()
     try:
         db.session.delete(user)
         db.session.commit()
-        flash(messages.MAILING_LIST_UNSUBSCRIBE_SUCCESS, alert.success)
+        flash(messages.mailing_list_unsubscribe_success(), alert.success)
         return redirect(url_for('home'))
     except Exception as e:
         db.session.rollback()
