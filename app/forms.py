@@ -1,3 +1,5 @@
+from app import messages
+from flask import flash
 from flask.ext.wtf import Form
 from .models import User
 from wtforms import StringField, BooleanField, validators
@@ -12,16 +14,16 @@ class MailingListForm(Form):
     age_group_2 = BooleanField('11-14', default=False)
     age_group_3 = BooleanField('15-17', default=False)
 
-    def age_group_is_chosen(self):
-        """ Returns true if at least one age group is chosen.
+    def validate(self):
+        """ Overriden to assure at least one age group is chosen. """
+        if not Form.validate(self):
+            return False
 
-        :return: bool
-        """
-        return (
-            self.age_group_1.data or
-            self.age_group_2.data or
-            self.age_group_3.data
-        )
+        age_group_chosen = self._age_group_is_chosen()
+        if not age_group_chosen:
+            flash(messages.age_group_validation(), 'alert-danger')
+
+        return age_group_chosen
 
     def create_user(self):
         """ Creates models.User object from form data.
@@ -80,4 +82,15 @@ class MailingListForm(Form):
             self.age_group_1.data == user.age_group_1 and
             self.age_group_2.data == user.age_group_2 and
             self.age_group_3.data == user.age_group_3
+        )
+
+    def _age_group_is_chosen(self):
+        """ Returns true if at least one age group is chosen.
+
+        :return: bool
+        """
+        return (
+            self.age_group_1.data or
+            self.age_group_2.data or
+            self.age_group_3.data
         )
