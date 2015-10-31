@@ -1,6 +1,13 @@
 from app import app
-from flask.ext.mail import Message
 from itsdangerous import URLSafeTimedSerializer
+
+
+class InvalidTokenError(Exception):
+    def __init__(self, token):
+        self.token = token
+
+    def __str__(self, token):
+        return 'The token {0} could not be confirmed'.format(token)
 
 
 def generate_token(email, salt):
@@ -39,22 +46,3 @@ def confirm_token(token, salt, expiration=None):
     except:
         return ''
     return email
-
-
-def send_confirmation_email(mail, user, url):
-    """ Sends the confirmation email
-
-    :param mail: the flask-mail object
-    :type mail: flask.ext.mail.Mail
-    :param user: the recepient of the email
-    :type user: app.models.User
-    :param url: the URL for the confirmation link
-    :type url: str
-    """
-    msg = Message(
-        sender=('CoderDojo Dallas', 'coderdojodallas@gmail.com'),
-        recipients=[user.email],
-        subject='Please confirm your email subscription for CoderDojo Dallas',
-        html='<a href="{0}">Click here to confirm your email subscription to CoderDojo Dallas.</a>'.format(url)
-    )
-    mail.send(msg)
