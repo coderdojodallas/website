@@ -26,6 +26,10 @@ def confirmation_link_confirmed(email):
     return "The email address '{0}' has successfully been added to our mailing list. Thank you for your interest in CoderDojo Dallas!".format(email)
 
 
+def mailing_list_preferences_confirmation_email(email):
+    return "Confirmation email sent to '{0}'. You will not be able to update your preferences further until your email has been confirmed.".format(email)
+
+
 def mailing_list_preferences_error():
     return 'The mailing list preferences for your email could not be loaded. Please contact help@coderdojodallas.com so we can assist in updating your mailing list preferences.'
 
