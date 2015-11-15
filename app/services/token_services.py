@@ -11,7 +11,7 @@ def generate_token(string, salt):
     :rtype: str
     """
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-    return serializer.dumps(email, salt=salt)
+    return serializer.dumps(string, salt=salt)
 
 
 def confirm_token(token, salt):

@@ -30,6 +30,10 @@ def mailing_list_preferences_error():
     return 'The mailing list preferences for your email could not be loaded. Please contact help@coderdojodallas.com so we can assist in updating your mailing list preferences.'
 
 
+def mailing_list_preferences_not_confirmed_error():
+    return 'The mailing list preferences for your email could not be loaded. Please confirm your email address before editing your preferences.'
+
+
 def mailing_list_preferences_success():
     return 'Your preferences have been successfully updated.'
 
