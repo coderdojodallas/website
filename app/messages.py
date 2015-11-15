@@ -2,12 +2,8 @@ def age_group_validation():
     return 'You must select at least one age group.'
 
 
-def email_address_submitted_and_confirmed(email):
-    return "The email address '{0}' has already been submitted and confirmed. You will receive future CoderDojo Dallas emails.".format(email)
-
-
-def email_address_submitted_not_confirmed(email):
-    return "The email address '{0}' has already been submitted, but not confirmed. Check your inbox for an email with confirmation steps.".format(email)
+def email_address_already_submitted(email):
+    return "The email address '{0}' has already been submitted.".format(email)
 
 
 def confirmation_email_sent(email):

@@ -1,14 +1,14 @@
 """empty message
 
-Revision ID: 2cfd0589e8d
-Revises: None
-Create Date: 2015-09-26 21:10:50.364607
+Revision ID: 36ca1f3da54
+Revises: 2cfd0589e8d
+Create Date: 2015-11-13 18:09:14.029429
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '2cfd0589e8d'
-down_revision = None
+revision = '36ca1f3da54'
+down_revision = '2cfd0589e8d'
 
 from alembic import op
 import sqlalchemy as sa
@@ -25,6 +25,7 @@ def upgrade():
     sa.Column('age_group_2', sa.Boolean(), nullable=False),
     sa.Column('age_group_3', sa.Boolean(), nullable=False),
     sa.Column('confirmed', sa.Boolean(), nullable=False),
+    sa.CheckConstraint('age_group_1 or age_group_2 or age_group_3', name='age_group_selected'),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('user', schema=None) as batch_op:
