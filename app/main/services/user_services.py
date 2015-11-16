@@ -1,7 +1,7 @@
-from app import app, db
-from app.models import User
-from flask import url_for
+from app import db
+from flask import current_app, url_for
 from . import mailing_list_services as mls, token_services as ts
+from ..models import User
 
 
 def add_user(first_name, last_name, email, age_group_1, age_group_2, age_group_3):
@@ -49,7 +49,7 @@ def confirm_user(user_token):
     """
     email = ts.confirm_token(
         user_token,
-        salt=app.config['MAILING_LIST_USER_SALT']
+        salt=current_app.config['MAILING_LIST_USER_SALT']
     )
     user = User.query.filter_by(email=email).first()
 
@@ -81,7 +81,7 @@ def edit_user(user_token, first_name, last_name, email, age_group_1,
     """
     original_email = ts.confirm_token(
         user_token,
-        app.config['MAILING_LIST_USER_SALT']
+        current_app.config['MAILING_LIST_USER_SALT']
     )
     user = User.query.filter_by(email=original_email).first()
     if not user:
@@ -111,7 +111,7 @@ def delete_user(user_token):
     """
     email = ts.confirm_token(
         user_token,
-        salt=app.config['MAILING_LIST_USER_SALT'],
+        salt=current_app.config['MAILING_LIST_USER_SALT'],
     )
     user = User.query.filter_by(email=email).first()
     if not user:
@@ -130,7 +130,7 @@ def get_user(user_token):
     """
     email = ts.confirm_token(
         user_token,
-        salt=app.config['MAILING_LIST_USER_SALT'],
+        salt=current_app.config['MAILING_LIST_USER_SALT'],
     )
     user = User.query.filter_by(email=email).first()
     if not user:
@@ -140,8 +140,8 @@ def get_user(user_token):
 
 
 def _create_token_and_send_confirmation_email(email):
-    token = ts.generate_token(email, app.config['MAILING_LIST_USER_SALT'])
-    url = url_for('confirm_email', token=token, _external=True)
+    token = ts.generate_token(email, current_app.config['MAILING_LIST_USER_SALT'])
+    url = url_for('main.confirm_email', token=token, _external=True)
     mls.send_confirmation_email(email, url)
 
 

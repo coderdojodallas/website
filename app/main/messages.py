@@ -11,7 +11,7 @@ def confirmation_email_sent(email):
 
 
 def confirmation_link_invalid():
-    return 'The confirmation link is invalid or has expired. Please fill out the Mailing List form again.'
+    return 'The confirmation link is invalid. Please fill out the Mailing List form again.'
 
 
 def confirmation_link_already_confirmed(email):

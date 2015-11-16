@@ -1,10 +1,10 @@
-from app import app, messages as msg
 from flask import flash, redirect, render_template, url_for
+from . import main, messages as msg
 from .forms import MailingListForm
 from .services import user_services as us
 
 
-@app.route('/', methods=['GET', 'POST'])
+@main.route('/', methods=['GET', 'POST'])
 def home():
     form = MailingListForm()
     if form.validate_on_submit():
@@ -23,22 +23,22 @@ def home():
     return render_template('home.html', title='Home', form=form)
 
 
-@app.route('/about')
+@main.route('/about')
 def about():
     return render_template('about.html', title='About')
 
 
-@app.route('/contact')
+@main.route('/contact')
 def contact():
     return render_template('contact.html', title='Contact')
 
 
-@app.route('/register')
+@main.route('/register')
 def register():
     return render_template('register.html', title='Register')
 
 
-@app.route('/confirm_email/<token>')
+@main.route('/confirm_email/<token>')
 def confirm_email(token):
     try:
         user = us.confirm_user(token)
@@ -48,10 +48,10 @@ def confirm_email(token):
     except us.AlreadyConfirmedUserError as e:
         flash(msg.confirmation_link_already_confirmed(e.email), 'alert-info')
 
-    return redirect(url_for('home'))
+    return redirect(url_for('main.home'))
 
 
-@app.route('/mailing_list_preferences/<token>', methods=['GET', 'POST'])
+@main.route('/mailing_list_preferences/<token>', methods=['GET', 'POST'])
 def mailing_list_preferences(token):
     form = MailingListForm()
 
@@ -62,7 +62,7 @@ def mailing_list_preferences(token):
             if not user.confirmed:
                 flash(msg.mailing_list_preferences_not_confirmed_error(),
                       'alert-danger')
-                return redirect(url_for('home'))
+                return redirect(url_for('main.home'))
             form.fill_fields_with_user(user)
         else:
             user = us.edit_user(
@@ -81,7 +81,7 @@ def mailing_list_preferences(token):
 
     except us.InvalidUserError:
         flash(msg.mailing_list_preferences_error(), 'alert-danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     except us.NotConfirmedUserError as e:
         flash(msg.mailing_list_preferences_not_confirmed_error(), 'alert-danger')
 
@@ -93,11 +93,11 @@ def mailing_list_preferences(token):
     )
 
 
-@app.route('/unsubscribe/<token>', methods=['POST'])
+@main.route('/unsubscribe/<token>', methods=['POST'])
 def unsubscribe(token):
     try:
         us.delete_user(token)
         flash(msg.mailing_list_unsubscribe_success(), 'alert-success')
     except us.InvalidUserError:
         flash(msg.mailing_list_unsubscribe_error(), 'alert-danger')
-    return redirect(url_for('home'))
+    return redirect(url_for('main.home'))

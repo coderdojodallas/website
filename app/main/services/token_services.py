@@ -1,4 +1,4 @@
-from app import app
+from flask import current_app
 from itsdangerous import URLSafeTimedSerializer
 
 
@@ -10,7 +10,7 @@ def generate_token(string, salt):
     :return: the token
     :rtype: str
     """
-    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     return serializer.dumps(string, salt=salt)
 
 
@@ -22,7 +22,7 @@ def confirm_token(token, salt):
     :return: the original, tokenized string or an empty string on error
     :rtype: str
     """
-    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     try:
         string = serializer.loads(token, salt=salt)
     except:

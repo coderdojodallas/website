@@ -1,8 +1,8 @@
-from app import messages
 from flask import flash
 from flask.ext.wtf import Form
-from .models import User
 from wtforms import StringField, BooleanField, validators
+from . import messages
+from .models import User
 
 
 class MailingListForm(Form):
