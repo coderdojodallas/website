@@ -8,12 +8,12 @@ db = SQLAlchemy()
 mail = Mail()
 
 
-def create_app(config_filename):
+def create_app(config_filename=None):
     # Main Flask setup
     app = Flask(__name__)
 
     # Config setup
-    app.config.from_object(config_filename)
+    app.config.from_object(config_filename or 'config')
 
     db.init_app(app)
     mail.init_app(app)
