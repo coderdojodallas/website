@@ -12,7 +12,6 @@ SECRET_KEY = 'dev-key'  # Key will be changed in production
 
 # SQLAlchemy
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
-SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 # Mail
 MAIL_SERVER = 'smtp.googlemail.com'
