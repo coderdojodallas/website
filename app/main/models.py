@@ -9,7 +9,12 @@ class User(db.Model):
     age_group_1 = db.Column(db.Boolean, nullable=False, index=True)
     age_group_2 = db.Column(db.Boolean, nullable=False, index=True)
     age_group_3 = db.Column(db.Boolean, nullable=False, index=True)
-    confirmed = db.Column(db.Boolean, default=True, nullable=False, index=True)
+    confirmed = db.Column(db.Boolean, default=False, nullable=False, index=True)
+
+    __table_args__ = (
+        db.CheckConstraint('age_group_1 or age_group_2 or age_group_3',
+                           name='age_group_selected'),
+    )
 
     def __str__(self):
         return '{0} {1} ({2})'.format(self.first, self.last, self.email)

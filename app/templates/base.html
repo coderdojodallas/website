@@ -9,10 +9,10 @@
 {% endblock %}
 
 {% set navigation_bar = [
-  ('home', 'home', 'Home'),
-  ('about', 'about', 'About'),
-  ('contact', 'contact', 'Contact'),
-  ('register', 'register', 'Register')
+  ('home', 'main.home', 'Home'),
+  ('about', 'main.about', 'About'),
+  ('contact', 'main.contact', 'Contact'),
+  ('register', 'main.register', 'Register')
 ] %}
 
 {% block navbar %}
@@ -32,7 +32,7 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="social-media-collapse">
       <ul class="nav navbar-nav navbar-right">
-        {% for view, id, caption in navigation_bar %}
+        {% for id, view, caption in navigation_bar %}
           <li{% if id == active_page %} class="active"{% endif %}><a href="{{ url_for(view) }}">{{ caption }}</a></li>
         {% endfor %}
         <li class="dropdown">

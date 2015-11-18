@@ -1,26 +1,25 @@
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.mail import Mail
-from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.script import Manager
 
-# Main Flask setup
-app = Flask(__name__)
 
-# Config setup
-app.config.from_object('config')
+db = SQLAlchemy()
+mail = Mail()
 
-# Email setup
-mail = Mail(app)
 
-# Bootstrap setup
-Bootstrap(app)
+def create_app(config_filename=None):
+    # Main Flask setup
+    app = Flask(__name__)
 
-# Database and Migrate setup
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
+    # Config setup
+    app.config.from_object(config_filename or 'config')
 
-from app import views, models
+    db.init_app(app)
+    mail.init_app(app)
+    Bootstrap(app)
+
+    from .main import main as main_blueprint
+    app.register_blueprint(main_blueprint)
+
+    return app

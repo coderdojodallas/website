@@ -7,14 +7,11 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 WTF_CSRF_ENABLED = True
 
 # itsdangerous
-EMAIL_CONFIRMATION_SALT = 'EMAIL_CONFIRMATION_SALT'
-MAILING_LIST_PREFERENCES_SALT = 'MAILING_LIST_PREFERENCES_SALT'
-EMAIL_CONFIRMATION_EXPIRATION = 7200  # 2 hours - expiration value in seconds
+MAILING_LIST_USER_SALT = 'MAILING_LIST_USER_SALT'
 SECRET_KEY = 'dev-key'  # Key will be changed in production
 
 # SQLAlchemy
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
-SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 # Mail
 MAIL_SERVER = 'smtp.googlemail.com'

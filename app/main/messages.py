@@ -2,12 +2,8 @@ def age_group_validation():
     return 'You must select at least one age group.'
 
 
-def email_address_submitted_and_confirmed(email):
-    return "The email address '{0}' has already been submitted and confirmed. You will receive future CoderDojo Dallas emails.".format(email)
-
-
-def email_address_submitted_not_confirmed(email):
-    return "The email address '{0}' has already been submitted, but not confirmed. Check your inbox for an email with confirmation steps.".format(email)
+def email_address_already_submitted(email):
+    return "The email address '{0}' has already been submitted.".format(email)
 
 
 def confirmation_email_sent(email):
@@ -15,7 +11,7 @@ def confirmation_email_sent(email):
 
 
 def confirmation_link_invalid():
-    return 'The confirmation link is invalid or has expired. Please fill out the Mailing List form again.'
+    return 'The confirmation link is invalid. Please fill out the Mailing List form again.'
 
 
 def confirmation_link_already_confirmed(email):
@@ -32,6 +28,10 @@ def mailing_list_preferences_confirmation_email(email):
 
 def mailing_list_preferences_error():
     return 'The mailing list preferences for your email could not be loaded. Please contact help@coderdojodallas.com so we can assist in updating your mailing list preferences.'
+
+
+def mailing_list_preferences_not_confirmed_error():
+    return 'The mailing list preferences for your email could not be loaded. Please confirm your email address before editing your preferences.'
 
 
 def mailing_list_preferences_success():
